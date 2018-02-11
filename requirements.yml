@@ -1,0 +1,5 @@
+## roles/ansible-role-nvidia/requirements.yml
+---
+- src: https://github.com/sourcejedi/ansible-rpmfusion-nonfree
+...
+

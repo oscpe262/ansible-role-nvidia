@@ -1,0 +1,5 @@
+## roles/ansible-role-nvidia/tasks/main.yml
+# vim:ft=ansible:
+---
+- include_tasks: '{{ ansible_distribution }}.yml'
+...

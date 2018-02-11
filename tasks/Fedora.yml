@@ -1,0 +1,19 @@
+## roles/ansible-role-nvidia/tasks/Fedora.yml
+---
+- set_fact:
+    nvidia_packages:
+      - akmod-nvidia
+      - kmod-nvidia
+      - nvidia-kmod-common
+      - xorg-x11-drv-nvidia
+      - xorg-x11-drv-nvidia-kmodsrc
+      - xorg-x11-drv-nvidia-libs.i686
+      - xorg-x11-drv-nvidia-libs.x86_64
+
+- name: Ensure Nvidia drivers are installed
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_flattened:
+    - "{{ nvidia_packages }}"
+...

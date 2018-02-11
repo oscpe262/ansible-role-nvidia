@@ -1,0 +1,57 @@
+---
+- name: "Install graphics related packages"
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - nvidia
+    - nvidia-utils
+    - nvidia-settings
+    - lib32-nvidia-utils
+    - mesa-vdpau
+    - opencl-nvidia
+    - cuda
+    - lib32-libvdpau
+
+  notify:
+    - rebuild kernel
+
+- name: "modprobe.conf check"
+  shell: "[[ ! -f /etc/modprobe.d/modprobe.conf ]]"
+  ignore_errors: yes
+  register: modprobe_conf
+
+- name: "modprobe.conf"
+  lineinfile:
+    dest: /etc/modprobe.d/modprobe.conf
+    regexp: "*options nouveau modeset=1"
+    line: "#options nouveau modeset=1"
+  when: modprobe_conf.rc != 0
+  notify:
+    - rebuild kernel
+
+- name: "mkinitcpio.conf"
+  lineinfile:
+    dest: /etc/mkinitcpio.conf
+    regexp: 'MODULES="nouveau"'
+    line: '#MODULES="nouveau"'
+  notify:
+    - rebuild kernel
+
+- name: nvidia-xconfig
+  command: nvidia-xconfig --add-argb-glx-visuals --allow-glx-with-composite --composite -no-logo --render-accel -o /etc/X11/xorg.conf.d/20-nvidia.conf
+  # output provided in template, adj. to template if wanted ...
+
+- name: nvidia-persistenced service
+  service: name='nvidia-persistenced', state='started', enabled='yes'
+
+- name: steam
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - steam
+    - steam-native-runtime
+    - lib32-libva-vdpau-driver
+  tags: steam
+...
